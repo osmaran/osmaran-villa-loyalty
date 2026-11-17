@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoka Villa Loyalty</title>
+    <title>Osmaran Villa Loyalty</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white">
     <div class="max-w-md mx-auto min-h-screen flex flex-col justify-between p-4 pb-8">
-        <!-- Шапка профиля -->
         <div>
+            <!-- Шапка -->
             <header class="flex justify-between items-center mb-6 pt-2">
                 <div>
-                    <h1 class="text-xs uppercase tracking-widest text-blue-400 font-semibold">Aoka Residence</h1>
-                    <p id="user-name" class="text-lg font-bold text-white">Гость резиденции</p>
+                    <h1 class="text-xs uppercase tracking-widest text-blue-400 font-semibold">Osmaran Villa</h1>
+                    <p id="user-name" class="text-lg font-bold text-white">Загрузка...</p>
                 </div>
                 <div class="flex bg-slate-900 border border-slate-800 rounded-full p-1 text-xs">
                     <button onclick="setLang('ru')" id="lang-ru" class="px-3 py-1 rounded-full bg-blue-600 text-white font-medium transition">RU</button>
@@ -27,16 +28,16 @@
                 <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-blue-500/10 rounded-full blur-2xl"></div>
                 <p id="t-balance-title" class="text-xs text-blue-300 font-medium uppercase tracking-wider mb-1">Ваш бонусный баланс</p>
                 <div class="flex items-baseline gap-2">
-                    <span id="user-balance" class="text-3xl font-extrabold text-white tracking-tight">100 000</span>
+                    <span id="user-balance" class="text-3xl font-extrabold text-white tracking-tight">0</span>
                     <span class="text-sm font-semibold text-blue-400">сум</span>
                 </div>
                 <div class="mt-4 pt-4 border-t border-slate-800/80 flex justify-between text-xs text-slate-400">
-                    <span id="t-spent">Всего трат: <strong id="user-spent" class="text-slate-200 font-semibold">0 сум</strong></span>
-                    <span id="t-visits">Заездов: <strong id="user-visits" class="text-slate-200 font-semibold">1</strong></span>
+                    <span><span id="t-spent-label">Всего трат:</span> <strong id="user-spent" class="text-slate-200 font-semibold">0 сум</strong></span>
+                    <span><span id="t-visits-label">Заездов:</span> <strong id="user-visits" class="text-slate-200 font-semibold">0</strong></span>
                 </div>
             </div>
 
-            <!-- Меню выбора разделов -->
+            <!-- Переключатель разделов -->
             <div class="grid grid-cols-2 gap-3 mb-6">
                 <button onclick="switchTab('vip')" id="tab-vip-btn" class="p-3.5 rounded-xl bg-blue-600 text-white font-medium text-sm text-center shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2">
                     ✨ <span id="t-vip-menu">VIP Услуги</span>
@@ -46,51 +47,20 @@
                 </button>
             </div>
 
-            <!-- Секция VIP Услуг (До 100% списание) -->
+            <!-- Раздел VIP Услуг -->
             <div id="section-vip" class="space-y-3">
                 <h2 id="t-vip-header" class="text-sm font-semibold text-slate-300 px-1">Оплата бонусами (до 100%)</h2>
-                
-                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center gap-1.5"><span class="text-base">👨‍🍳</span><h3 class="font-semibold text-sm text-white">Услуги личного повара</h3></div>
-                        <p class="text-xs text-slate-400 mt-0.5">800 000 сум</p>
-                    </div>
-                    <button onclick="orderService('Услуги личного повара', 800000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
-                </div>
+                <div id="services-list" class="space-y-3"></div>
 
-                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center gap-1.5"><span class="text-base">🏎️</span><h3 class="font-semibold text-sm text-white">Горный багги-тур</h3></div>
-                        <p class="text-xs text-slate-400 mt-0.5">1 200 000 сум</p>
-                    </div>
-                    <button onclick="orderService('Горный багги-тур', 1200000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
-                </div>
-
-                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center gap-1.5"><span class="text-base">🧹</span><h3 class="font-semibold text-sm text-white">Дополнительный клининг</h3></div>
-                        <p class="text-xs text-slate-400 mt-0.5">300 000 сум</p>
-                    </div>
-                    <button onclick="orderService('Дополнительный клининг', 300000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
-                </div>
-
-                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center gap-1.5"><span class="text-base">🧖‍♂️</span><h3 class="font-semibold text-sm text-white">Финская сауна и хаммам</h3></div>
-                        <p class="text-xs text-slate-400 mt-0.5">500 000 сум</p>
-                    </div>
-                    <button onclick="orderService('Финская сауна и хаммам', 500000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
-                </div>
-
-                <!-- Кнопка заявки на скидку до 30% на виллу -->
+                <!-- Кнопка заявки на скидку 30% -->
                 <div class="pt-2">
-                    <button onclick="orderVillaDiscount()" class="w-full py-3.5 rounded-xl border border-blue-500/30 bg-blue-950/20 hover:bg-blue-900/30 text-blue-300 font-semibold text-xs tracking-wide uppercase transition text-center">
+                    <button onclick="orderVillaDiscount()" id="t-villa-btn" class="w-full py-3.5 rounded-xl border border-blue-500/30 bg-blue-950/20 hover:bg-blue-900/30 text-blue-300 font-semibold text-xs tracking-wide uppercase transition text-center">
                         🏡 Использовать кэшбэк на аренду виллы (до 30%)
                     </button>
                 </div>
             </div>
 
-            <!-- Секция Рефералов -->
+            <!-- Раздел Реферальной программы -->
             <div id="section-referral" class="space-y-4 hidden">
                 <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 text-center">
                     <div class="w-12 h-12 bg-blue-600/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">🎁</div>
@@ -98,7 +68,7 @@
                     <p id="t-ref-desc" class="text-xs text-slate-400 mb-4 leading-relaxed">Получайте денежное вознаграждение на баланс сразу после того, как приглашенный гость совершит первый заезд.</p>
                     
                     <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mb-3 flex items-center justify-between">
-                        <span id="ref-link-text" class="text-xs text-blue-400 font-mono truncate mr-2">https://t.me/bot?start=ref123</span>
+                        <span id="ref-link-text" class="text-xs text-blue-400 font-mono truncate mr-2">Загрузка...</span>
                         <button onclick="copyRefLink()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shrink-0" id="t-copy">Копировать</button>
                     </div>
                 </div>
@@ -106,38 +76,141 @@
         </div>
 
         <footer class="text-center text-xs text-slate-600 pt-6">
-            Aoka Villa Residence Loyalty System
+            Osmaran Villa Loyalty System
         </footer>
     </div>
 
     <script>
+        const SUPABASE_URL = 'https://ahsepjswkdhmjtsoogqt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoc2VwanN3a2RobWp0c29vZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4OTEwNDQsImV4cCI6MjExMDQ2NzA0NH0.ZgND289FS56etizFmpmUXan8KGl9R7o7kHOBX4cY9OM';
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let currentLang = 'ru';
+        let currentUser = null;
+        let servicesCache = [];
+
         const translations = {
             ru: {
                 balanceTitle: "Ваш бонусный баланс",
-                spent: "Всего трат:",
-                visits: "Заездов:",
+                spentLabel: "Всего трат:",
+                visitsLabel: "Заездов:",
                 vipMenu: "VIP Услуги",
                 refMenu: "Пригласить",
                 vipHeader: "Оплата бонусами (до 100%)",
+                villaBtn: "🏡 Использовать кэшбэк на аренду виллы (до 30%)",
                 refTitle: "Приглашайте друзей",
                 refDesc: "Получайте денежное вознаграждение на баланс сразу после того, как приглашенный гость совершит первый заезд.",
                 copy: "Копировать",
-                copied: "Скопировано!"
+                copied: "Скопировано!",
+                orderBtn: "Заказать",
+                sum: "сум"
             },
             uz: {
                 balanceTitle: "Sizning bonus balansingiz",
-                spent: "Jami xarajat:",
-                visits: "Tashriflar:",
+                spentLabel: "Jami xarajat:",
+                visitsLabel: "Tashriflar:",
                 vipMenu: "VIP Xizmatlar",
                 refMenu: "Taklif qilish",
                 vipHeader: "Bonuslar bilan to'lash (100% gacha)",
+                villaBtn: "🏡 Villa ijarasi uchun keshbekdan foydalanish (30% gacha)",
                 refTitle: "Do'stlaringizni taklif qiling",
                 refDesc: "Taklif qilingan mehmon birinchi tashrifini amalga oshirgandan so'ng balansingizga pul mukofotini oling.",
                 copy: "Nusxalash",
-                copied: "Nusxalandi!"
+                copied: "Nusxalandi!",
+                orderBtn: "Buyurtma",
+                sum: "so'm"
             }
         };
+
+        async function initApp() {
+            let tgId = 999999999; // Тестовый ID, если открыто в браузере
+            let tgName = "Гость Osmaran";
+            let botUsername = "osmaran_villa_bot"; // Заменится автоматически при запуске бота
+
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+                const user = window.Telegram.WebApp.initDataUnsafe?.user;
+                if (user) {
+                    tgId = user.id;
+                    tgName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+                }
+            }
+
+            // Загружаем данные гостя из базы
+            let { data: userData } = await db.from('users').select('*').eq('telegram_id', tgId).single();
+            
+            if (!userData) {
+                // Если гость зашел напрямую, создаем профиль с Welcome-бонусом 100 000 сум
+                const { data: newUser } = await db.from('users').insert([{
+                    telegram_id: tgId,
+                    full_name: tgName,
+                    balance: 100000,
+                    referral_code: 'ref_' + tgId
+                }]).select().single();
+                userData = newUser;
+            }
+
+            currentUser = userData;
+            document.getElementById('user-name').innerText = currentUser.full_name || tgName;
+            document.getElementById('user-balance').innerText = Number(currentUser.balance).toLocaleString('ru-RU');
+            document.getElementById('user-spent').innerText = Number(currentUser.total_spent).toLocaleString('ru-RU') + ' сум';
+            document.getElementById('user-visits').innerText = currentUser.visits_count;
+            document.getElementById('ref-link-text').innerText = `https://t.me/share/url?url=Osmaran_Villa_Code_${tgId}`;
+
+            // Загружаем VIP услуги из базы
+            const { data: services } = await db.from('vip_services').select('*').eq('is_active', true).order('id');
+            servicesCache = services || [];
+            renderServices();
+        }
+
+        function renderServices() {
+            const container = document.getElementById('services-list');
+            container.innerHTML = '';
+            servicesCache.forEach(s => {
+                const title = currentLang === 'ru' ? s.title_ru : s.title_uz;
+                const desc = currentLang === 'ru' ? s.description_ru : s.description_uz;
+                container.innerHTML += `
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-1.5"><span class="text-base">${s.icon}</span><h3 class="font-semibold text-sm text-white">${title}</h3></div>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${desc}</p>
+                            <p class="text-xs text-blue-400 font-semibold mt-1">${Number(s.price).toLocaleString('ru-RU')} ${translations[currentLang].sum}</p>
+                        </div>
+                        <button onclick="orderService('${title}', ${s.price})" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition shrink-0">${translations[currentLang].orderBtn}</button>
+                    </div>
+                `;
+            });
+        }
+
+        async function orderService(title, price) {
+            if (!currentUser) return;
+            const bonusToUse = Math.min(currentUser.balance, price);
+            await db.from('orders').insert([{
+                user_telegram_id: currentUser.telegram_id,
+                order_type: 'vip_service',
+                service_title: title,
+                bonus_amount_requested: bonusToUse,
+                status: 'pending'
+            }]);
+            alert(currentLang === 'ru' 
+                ? `Заявка на «${title}» отправлена! Менеджер свяжется с вами для подтверждения.` 
+                : `«${title}» xizmati uchun ariza yuborildi! Menejer tasdiqlash uchun siz bilan bog'lanadi.`);
+        }
+
+        async function orderVillaDiscount() {
+            if (!currentUser) return;
+            await db.from('orders').insert([{
+                user_telegram_id: currentUser.telegram_id,
+                order_type: 'villa_discount',
+                service_title: 'Списание кэшбэка до 30% на аренду виллы',
+                bonus_amount_requested: currentUser.balance,
+                status: 'pending'
+            }]);
+            alert(currentLang === 'ru' 
+                ? 'Запрос на использование кэшбэка (до 30% от аренды) отправлен менеджеру Osmaran Villa!' 
+                : 'Keshbekdan foydalanish (ijaraning 30% gacha) so\'rovi Osmaran Villa menejeriga yuborildi!');
+        }
 
         function setLang(lang) {
             currentLang = lang;
@@ -145,12 +218,16 @@
             document.getElementById('lang-uz').className = lang === 'uz' ? 'px-3 py-1 rounded-full bg-blue-600 text-white font-medium transition' : 'px-3 py-1 rounded-full text-slate-400 font-medium transition';
             
             document.getElementById('t-balance-title').innerText = translations[lang].balanceTitle;
+            document.getElementById('t-spent-label').innerText = translations[lang].spentLabel;
+            document.getElementById('t-visits-label').innerText = translations[lang].visitsLabel;
             document.getElementById('t-vip-menu').innerText = translations[lang].vipMenu;
             document.getElementById('t-ref-menu').innerText = translations[lang].refMenu;
             document.getElementById('t-vip-header').innerText = translations[lang].vipHeader;
+            document.getElementById('t-villa-btn').innerText = translations[lang].villaBtn;
             document.getElementById('t-ref-title').innerText = translations[lang].refTitle;
             document.getElementById('t-ref-desc').innerText = translations[lang].refDesc;
             document.getElementById('t-copy').innerText = translations[lang].copy;
+            renderServices();
         }
 
         function switchTab(tab) {
@@ -167,14 +244,6 @@
             }
         }
 
-        function orderService(title, price) {
-            alert(currentLang === 'ru' ? `Заявка на услугу "${title}" (${price.toLocaleString()} сум) отправлена администратору!` : `"${title}" (${price.toLocaleString()} so'm) xizmati uchun ariza administratorga yuborildi!`);
-        }
-
-        function orderVillaDiscount() {
-            alert(currentLang === 'ru' ? 'Запрос на списание кэшбэка до 30% для бронирования виллы отправлен менеджеру.' : 'Villa bron qilish uchun 30% gacha keshbekni yechish so\'rovi menejerga yuborildi.');
-        }
-
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link-text').innerText);
             const btn = document.getElementById('t-copy');
@@ -182,16 +251,7 @@
             setTimeout(() => btn.innerText = translations[currentLang].copy, 2000);
         }
 
-        // Инициализация Telegram WebApp
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            const user = window.Telegram.WebApp.initDataUnsafe?.user;
-            if (user) {
-                document.getElementById('user-name').innerText = user.first_name || 'Гость';
-                document.getElementById('ref-link-text').innerText = `https://t.me/villa_loyalty_uz_bot?start=ref_${user.id}`;
-            }
-        }
+        initApp();
     </script>
 </body>
 </html>
