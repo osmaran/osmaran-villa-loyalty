@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aoka Villa Loyalty</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col justify-between p-4 pb-8">
+        <!-- Шапка профиля -->
+        <div>
+            <header class="flex justify-between items-center mb-6 pt-2">
+                <div>
+                    <h1 class="text-xs uppercase tracking-widest text-blue-400 font-semibold">Aoka Residence</h1>
+                    <p id="user-name" class="text-lg font-bold text-white">Гость резиденции</p>
+                </div>
+                <div class="flex bg-slate-900 border border-slate-800 rounded-full p-1 text-xs">
+                    <button onclick="setLang('ru')" id="lang-ru" class="px-3 py-1 rounded-full bg-blue-600 text-white font-medium transition">RU</button>
+                    <button onclick="setLang('uz')" id="lang-uz" class="px-3 py-1 rounded-full text-slate-400 font-medium transition">UZ</button>
+                </div>
+            </header>
+
+            <!-- Карточка баланса -->
+            <div class="bg-gradient-to-br from-blue-900/40 via-slate-900 to-slate-900 border border-blue-500/20 rounded-2xl p-5 mb-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-blue-500/10 rounded-full blur-2xl"></div>
+                <p id="t-balance-title" class="text-xs text-blue-300 font-medium uppercase tracking-wider mb-1">Ваш бонусный баланс</p>
+                <div class="flex items-baseline gap-2">
+                    <span id="user-balance" class="text-3xl font-extrabold text-white tracking-tight">100 000</span>
+                    <span class="text-sm font-semibold text-blue-400">сум</span>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-800/80 flex justify-between text-xs text-slate-400">
+                    <span id="t-spent">Всего трат: <strong id="user-spent" class="text-slate-200 font-semibold">0 сум</strong></span>
+                    <span id="t-visits">Заездов: <strong id="user-visits" class="text-slate-200 font-semibold">1</strong></span>
+                </div>
+            </div>
+
+            <!-- Меню выбора разделов -->
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="switchTab('vip')" id="tab-vip-btn" class="p-3.5 rounded-xl bg-blue-600 text-white font-medium text-sm text-center shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2">
+                    ✨ <span id="t-vip-menu">VIP Услуги</span>
+                </button>
+                <button onclick="switchTab('referral')" id="tab-ref-btn" class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-medium text-sm text-center transition flex items-center justify-center gap-2">
+                    🤝 <span id="t-ref-menu">Пригласить</span>
+                </button>
+            </div>
+
+            <!-- Секция VIP Услуг (До 100% списание) -->
+            <div id="section-vip" class="space-y-3">
+                <h2 id="t-vip-header" class="text-sm font-semibold text-slate-300 px-1">Оплата бонусами (до 100%)</h2>
+                
+                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5"><span class="text-base">👨‍🍳</span><h3 class="font-semibold text-sm text-white">Услуги личного повара</h3></div>
+                        <p class="text-xs text-slate-400 mt-0.5">800 000 сум</p>
+                    </div>
+                    <button onclick="orderService('Услуги личного повара', 800000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
+                </div>
+
+                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5"><span class="text-base">🏎️</span><h3 class="font-semibold text-sm text-white">Горный багги-тур</h3></div>
+                        <p class="text-xs text-slate-400 mt-0.5">1 200 000 сум</p>
+                    </div>
+                    <button onclick="orderService('Горный багги-тур', 1200000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
+                </div>
+
+                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5"><span class="text-base">🧹</span><h3 class="font-semibold text-sm text-white">Дополнительный клининг</h3></div>
+                        <p class="text-xs text-slate-400 mt-0.5">300 000 сум</p>
+                    </div>
+                    <button onclick="orderService('Дополнительный клининг', 300000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
+                </div>
+
+                <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5"><span class="text-base">🧖‍♂️</span><h3 class="font-semibold text-sm text-white">Финская сауна и хаммам</h3></div>
+                        <p class="text-xs text-slate-400 mt-0.5">500 000 сум</p>
+                    </div>
+                    <button onclick="orderService('Финская сауна и хаммам', 500000)" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-medium transition">Заказать</button>
+                </div>
+
+                <!-- Кнопка заявки на скидку до 30% на виллу -->
+                <div class="pt-2">
+                    <button onclick="orderVillaDiscount()" class="w-full py-3.5 rounded-xl border border-blue-500/30 bg-blue-950/20 hover:bg-blue-900/30 text-blue-300 font-semibold text-xs tracking-wide uppercase transition text-center">
+                        🏡 Использовать кэшбэк на аренду виллы (до 30%)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Секция Рефералов -->
+            <div id="section-referral" class="space-y-4 hidden">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 text-center">
+                    <div class="w-12 h-12 bg-blue-600/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">🎁</div>
+                    <h2 id="t-ref-title" class="text-base font-bold text-white mb-1">Приглашайте друзей</h2>
+                    <p id="t-ref-desc" class="text-xs text-slate-400 mb-4 leading-relaxed">Получайте денежное вознаграждение на баланс сразу после того, как приглашенный гость совершит первый заезд.</p>
+                    
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl mb-3 flex items-center justify-between">
+                        <span id="ref-link-text" class="text-xs text-blue-400 font-mono truncate mr-2">https://t.me/bot?start=ref123</span>
+                        <button onclick="copyRefLink()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shrink-0" id="t-copy">Копировать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-xs text-slate-600 pt-6">
+            Aoka Villa Residence Loyalty System
+        </footer>
+    </div>
+
+    <script>
+        let currentLang = 'ru';
+        const translations = {
+            ru: {
+                balanceTitle: "Ваш бонусный баланс",
+                spent: "Всего трат:",
+                visits: "Заездов:",
+                vipMenu: "VIP Услуги",
+                refMenu: "Пригласить",
+                vipHeader: "Оплата бонусами (до 100%)",
+                refTitle: "Приглашайте друзей",
+                refDesc: "Получайте денежное вознаграждение на баланс сразу после того, как приглашенный гость совершит первый заезд.",
+                copy: "Копировать",
+                copied: "Скопировано!"
+            },
+            uz: {
+                balanceTitle: "Sizning bonus balansingiz",
+                spent: "Jami xarajat:",
+                visits: "Tashriflar:",
+                vipMenu: "VIP Xizmatlar",
+                refMenu: "Taklif qilish",
+                vipHeader: "Bonuslar bilan to'lash (100% gacha)",
+                refTitle: "Do'stlaringizni taklif qiling",
+                refDesc: "Taklif qilingan mehmon birinchi tashrifini amalga oshirgandan so'ng balansingizga pul mukofotini oling.",
+                copy: "Nusxalash",
+                copied: "Nusxalandi!"
+            }
+        };
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('lang-ru').className = lang === 'ru' ? 'px-3 py-1 rounded-full bg-blue-600 text-white font-medium transition' : 'px-3 py-1 rounded-full text-slate-400 font-medium transition';
+            document.getElementById('lang-uz').className = lang === 'uz' ? 'px-3 py-1 rounded-full bg-blue-600 text-white font-medium transition' : 'px-3 py-1 rounded-full text-slate-400 font-medium transition';
+            
+            document.getElementById('t-balance-title').innerText = translations[lang].balanceTitle;
+            document.getElementById('t-vip-menu').innerText = translations[lang].vipMenu;
+            document.getElementById('t-ref-menu').innerText = translations[lang].refMenu;
+            document.getElementById('t-vip-header').innerText = translations[lang].vipHeader;
+            document.getElementById('t-ref-title').innerText = translations[lang].refTitle;
+            document.getElementById('t-ref-desc').innerText = translations[lang].refDesc;
+            document.getElementById('t-copy').innerText = translations[lang].copy;
+        }
+
+        function switchTab(tab) {
+            if (tab === 'vip') {
+                document.getElementById('section-vip').classList.remove('hidden');
+                document.getElementById('section-referral').classList.add('hidden');
+                document.getElementById('tab-vip-btn').className = 'p-3.5 rounded-xl bg-blue-600 text-white font-medium text-sm text-center shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2';
+                document.getElementById('tab-ref-btn').className = 'p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-medium text-sm text-center transition flex items-center justify-center gap-2';
+            } else {
+                document.getElementById('section-vip').classList.add('hidden');
+                document.getElementById('section-referral').classList.remove('hidden');
+                document.getElementById('tab-ref-btn').className = 'p-3.5 rounded-xl bg-blue-600 text-white font-medium text-sm text-center shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2';
+                document.getElementById('tab-vip-btn').className = 'p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-medium text-sm text-center transition flex items-center justify-center gap-2';
+            }
+        }
+
+        function orderService(title, price) {
+            alert(currentLang === 'ru' ? `Заявка на услугу "${title}" (${price.toLocaleString()} сум) отправлена администратору!` : `"${title}" (${price.toLocaleString()} so'm) xizmati uchun ariza administratorga yuborildi!`);
+        }
+
+        function orderVillaDiscount() {
+            alert(currentLang === 'ru' ? 'Запрос на списание кэшбэка до 30% для бронирования виллы отправлен менеджеру.' : 'Villa bron qilish uchun 30% gacha keshbekni yechish so\'rovi menejerga yuborildi.');
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link-text').innerText);
+            const btn = document.getElementById('t-copy');
+            btn.innerText = translations[currentLang].copied;
+            setTimeout(() => btn.innerText = translations[currentLang].copy, 2000);
+        }
+
+        // Инициализация Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            const user = window.Telegram.WebApp.initDataUnsafe?.user;
+            if (user) {
+                document.getElementById('user-name').innerText = user.first_name || 'Гость';
+                document.getElementById('ref-link-text').innerText = `https://t.me/villa_loyalty_uz_bot?start=ref_${user.id}`;
+            }
+        }
+    </script>
+</body>
+</html>
