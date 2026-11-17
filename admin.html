@@ -3,73 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoka Villa - Admin Panel</title>
+    <title>Osmaran Villa - Панель Управления</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased p-4">
-    <div class="max-w-md mx-auto space-y-5 pb-10">
+
+    <!-- Экран входа по паролю -->
+    <div id="login-screen" class="max-w-sm mx-auto mt-20 bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <div class="text-center">
+            <h1 class="text-xs uppercase tracking-widest text-blue-400 font-semibold">Osmaran Management</h1>
+            <p class="text-lg font-bold text-white mt-1">Вход в панель управления</p>
+        </div>
+        <input type="password" id="admin-pass" placeholder="Введите пароль доступа" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500">
+        <button onclick="checkAuth()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm transition">Войти</button>
+    </div>
+
+    <!-- Основной интерфейс Админки -->
+    <div id="admin-panel" class="max-w-md mx-auto space-y-5 pb-12 hidden">
         <header class="flex justify-between items-center pt-2">
             <div>
-                <h1 class="text-xs uppercase tracking-widest text-blue-400 font-semibold">Aoka Management</h1>
+                <h1 class="text-xs uppercase tracking-widest text-blue-400 font-semibold">Osmaran Villa</h1>
                 <p class="text-lg font-bold text-white">Панель Учредителя</p>
             </div>
-            <span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-xs px-2.5 py-1 rounded-full font-medium">Admin</span>
+            <button onclick="loadAllData()" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-xs px-3 py-1.5 rounded-full font-medium">↻ Обновить</button>
         </header>
 
-        <!-- Статистика -->
+        <!-- Сводка -->
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                <p class="text-xs text-slate-400 mb-1">Всего гостей</p>
-                <p class="text-2xl font-bold text-white">24</p>
+                <p class="text-xs text-slate-400 mb-1">Гостей в базе</p>
+                <p id="stat-users" class="text-2xl font-bold text-white">0</p>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                <p class="text-xs text-slate-400 mb-1">Активные заявки</p>
-                <p class="text-2xl font-bold text-blue-400">3</p>
+                <p class="text-xs text-slate-400 mb-1">Новых заявок</p>
+                <p id="stat-orders" class="text-2xl font-bold text-blue-400">0</p>
             </div>
         </div>
 
-        <!-- Поиск клиента -->
+        <!-- Начисление кэшбэка 3% или списание -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <h2 class="text-sm font-semibold text-white">Управление балансом гостя</h2>
-            <input type="text" id="search-phone" placeholder="Телефон или имя гостя..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
-            <div class="flex gap-2">
-                <input type="number" id="acc-amount" placeholder="Сумма в сумах" class="w-1/2 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
-                <button onclick="modifyBalance('add')" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-xl py-2.5 transition">Начислить (3%)</button>
+            <h2 class="text-sm font-semibold text-white">Начисление кэшбэка (3%) / Списание</h2>
+            <select id="select-user" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <option value="">Выберите гостя из базы...</option>
+            </select>
+            <input type="number" id="rent-amount" placeholder="Сумма чека за виллу (напр. 10000000)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="accrueCashback()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-xl py-2.5 transition">+ Начислить 3%</button>
+                <button onclick="deductBonus()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs rounded-xl py-2.5 transition">- Списать бонусы</button>
             </div>
         </div>
 
-        <!-- Последние заявки -->
+        <!-- Входящие заявки от гостей -->
         <div class="space-y-3">
-            <h2 class="text-sm font-semibold text-slate-300 px-1">Входящие заявки от гостей</h2>
-            
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-semibold text-sm text-white">Абдумалик</h3>
-                        <p class="text-xs text-slate-400">+998 90 123 45 67</p>
-                    </div>
-                    <span class="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-md">Новая</span>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-lg text-xs text-blue-300 font-medium">
-                    Заказ: Услуги личного повара (800 000 сум)
-                </div>
-                <div class="flex gap-2 pt-1">
-                    <button onclick="approveOrder(1)" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-medium transition">Подтвердить</button>
-                    <button onclick="rejectOrder(1)" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-medium transition">Отклонить</button>
-                </div>
-            </div>
+            <h2 class="text-sm font-semibold text-slate-300 px-1">Заявки от гостей (VIP и Скидки 30%)</h2>
+            <div id="orders-list" class="space-y-3"></div>
+        </div>
+
+        <!-- База клиентов -->
+        <div class="space-y-3 pt-2">
+            <h2 class="text-sm font-semibold text-slate-300 px-1">База клиентов Osmaran Villa</h2>
+            <div id="users-list" class="space-y-2"></div>
         </div>
     </div>
 
     <script>
-        function modifyBalance(action) {
-            alert('Баланс успешно обновлен! (Интеграция с базой данных подключена)');
+        const ADMIN_PASSWORD = 'osmaran2026'; // Пароль для входа в админку
+        const SUPABASE_URL = 'https://ahsepjswkdhmjtsoogqt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoc2VwanN3a2RobWp0c29vZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4OTEwNDQsImV4cCI6MjExMDQ2NzA0NH0.ZgND289FS56etizFmpmUXan8KGl9R7o7kHOBX4cY9OM';
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let usersCache = [];
+
+        function checkAuth() {
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === ADMIN_PASSWORD) {
+                localStorage.setItem('osmaran_admin', '1');
+                showAdmin();
+            } else {
+                alert('Неверный пароль!');
+            }
         }
-        function approveOrder(id) {
-            alert('Заявка подтверждена.');
+
+        function showAdmin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            loadAllData();
         }
-        function rejectOrder(id) {
-            alert('Заявка отклонена.');
+
+        if (localStorage.getItem('osmaran_admin') === '1') {
+            showAdmin();
+        }
+
+        async function loadAllData() {
+            // Загружаем пользователей
+            const { data: users } = await db.from('users').select('*').order('created_at', { ascending: false });
+            usersCache = users || [];
+            document.getElementById('stat-users').innerText = usersCache.length;
+
+            const select = document.getElementById('select-user');
+            const usersList = document.getElementById('users-list');
+            select.innerHTML = '<option value="">Выберите гостя из базы...</option>';
+            usersList.innerHTML = '';
+
+            usersCache.forEach(u => {
+                select.innerHTML += `<option value="${u.telegram_id}">${u.full_name || 'Без имени'} (${u.phone || 'нет тел.'}) — ${Number(u.balance).toLocaleString()} сум</option>`;
+                usersList.innerHTML += `
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-xl p-3 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-semibold text-white">${u.full_name || 'Гость'}</p>
+                            <p class="text-slate-400">${u.phone || 'Телефон не указан'} • Заездов: ${u.visits_count}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-blue-400">${Number(u.balance).toLocaleString()} сум</p>
+                            <p class="text-[10px] text-slate-500">Трат: ${Number(u.total_spent).toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Загружаем заявки
+            const { data: orders } = await db.from('orders').select('*').order('created_at', { ascending: false }).limit(15);
+            const ordersList = document.getElementById('orders-list');
+            ordersList.innerHTML = '';
+            let pendingCount = 0;
+
+            (orders || []).forEach(o => {
+                if (o.status === 'pending') pendingCount++;
+                const guest = usersCache.find(u => u.telegram_id === o.user_telegram_id) || {};
+                const statusBadge = o.status === 'pending' 
+                    ? '<span class="text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-md">Новая</span>'
+                    : (o.status === 'approved' ? '<span class="text-[11px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-md">Выполнена</span>' : '<span class="text-[11px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md">Отклонена</span>');
+
+                ordersList.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-semibold text-sm text-white">${guest.full_name || 'Гость #' + o.user_telegram_id}</h3>
+                                <p class="text-xs text-slate-400">${guest.phone || 'Телефон не привязан'}</p>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg text-xs text-blue-300 font-medium">
+                            ${o.service_title} (Баланс к списанию: ${Number(o.bonus_amount_requested).toLocaleString()} сум)
+                        </div>
+                        ${o.status === 'pending' ? `
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="updateOrder(${o.id}, 'approved')" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-medium transition">Подтвердить</button>
+                            <button onclick="updateOrder(${o.id}, 'cancelled')" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-medium transition">Отклонить</button>
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('stat-orders').innerText = pendingCount;
+        }
+
+        async function accrueCashback() {
+            const tgId = document.getElementById('select-user').value;
+            const rentAmount = Number(document.getElementById('rent-amount').value);
+            if (!tgId || !rentAmount) return alert('Выберите гостя и введите сумму!');
+
+            const user = usersCache.find(u => u.telegram_id == tgId);
+            const cashback = Math.round(rentAmount * 0.03); // 3% кэшбэк
+            const newBalance = Number(user.balance) + cashback;
+            const newSpent = Number(user.total_spent) + rentAmount;
+            const newVisits = Number(user.visits_count) + 1;
+
+            await db.from('users').update({ balance: newBalance, total_spent: newSpent, visits_count: newVisits }).eq('telegram_id', tgId);
+            await db.from('transactions').insert([{ user_telegram_id: tgId, amount: cashback, tx_type: 'cashback', comment: `Кэшбэк 3% от суммы ${rentAmount} сум` }]);
+
+            // Проверка: если это 1-й визит приглашенного друга, начисляем реферальный бонус пригласившему
+            if (user.referred_by && !user.referral_reward_paid) {
+                const { data: settings } = await db.from('settings').select('referral_bonus').eq('id', 1).single();
+                const refBonus = settings ? Number(settings.referral_bonus) : 250000;
+                const inviter = usersCache.find(u => u.telegram_id == user.referred_by);
+                if (inviter) {
+                    await db.from('users').update({ balance: Number(inviter.balance) + refBonus }).eq('telegram_id', inviter.telegram_id);
+                    await db.from('users').update({ referral_reward_paid: true }).eq('telegram_id', tgId);
+                    await db.from('transactions').insert([{ user_telegram_id: inviter.telegram_id, amount: refBonus, tx_type: 'referral', comment: `Бонус за 1-й заезд друга (${user.full_name})` }]);
+                }
+            }
+
+            alert(`Начислено ${cashback.toLocaleString()} сум кэшбэка (3%)!`);
+            document.getElementById('rent-amount').value = '';
+            loadAllData();
+        }
+
+        async function deductBonus() {
+            const tgId = document.getElementById('select-user').value;
+            const amount = Number(document.getElementById('rent-amount').value);
+            if (!tgId || !amount) return alert('Выберите гостя и введите сумму списания!');
+
+            const user = usersCache.find(u => u.telegram_id == tgId);
+            if (amount > user.balance) return alert('Недостаточно бонусов на балансе гостя!');
+
+            await db.from('users').update({ balance: Number(user.balance) - amount }).eq('telegram_id', tgId);
+            await db.from('transactions').insert([{ user_telegram_id: tgId, amount: -amount, tx_type: 'spend', comment: 'Списание бонусов администратором' }]);
+
+            alert(`Списано ${amount.toLocaleString()} сум с баланса гостя.`);
+            document.getElementById('rent-amount').value = '';
+            loadAllData();
+        }
+
+        async function updateOrder(orderId, status) {
+            await db.from('orders').update({ status: status }).eq('id', orderId);
+            loadAllData();
         }
     </script>
 </body>
